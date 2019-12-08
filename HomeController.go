@@ -2,13 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"encoding/pem"
-	//"golang.org/x/net/context"
 	"log"
 	"net/http"
 	"os"
-	"io/ioutil"
 )
 
 var (
@@ -22,50 +18,15 @@ const (
 )
 
 func main() {
-	//flag.StringVar(&listenAddr, "listen-addr", ":4001", "server listen address")
+	flag.StringVar(&listenAddr, "listen-addr", ":4001", "server listen address")
 	flag.Parse()
 
-	//log.SetOutput(os.Stderr)
 	logger := log.New(os.Stdout, "https", log.LstdFlags)
+	http.Handle("/", http.FileServer(http.Dir("./ClientApp/dist/ClientApp")))
 
-	router := http.NewServeMux()
-	router.Handle("/", index())
-
-	// nextRequestID := func() string {
-	// 	return fmt.Sprintf("%d", time.Now().UnixNano())
-	// }
-
-	// server := &http.Server{
-	// 	Addr:         listenAddr,
-	// 	Handler:      router,
-	// 	ErrorLog:     logger,
-	// 	ReadTimeout:  5 * time.Second,
-	// 	WriteTimeout: 10 * time.Second,
-	// }
-	//certPath := "./cert.pem"
-	keyPath := "./key.pem"	
-
-	//cert,_:= ioutil.ReadFile(certPath);
-	key,_:= ioutil.ReadFile(keyPath);
-
-
-	err := http.ListenAndServeTLS(":4001", "./cert.pem", key, nil)
+	err := http.ListenAndServeTLS(listenAddr, "cert.pem", "key.unencrypted.pem", nil)
 
 	logger.Println(err)
-	//server.ListenAndServe()
-}
-
-func index() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-			return
-		}
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "Hello, Tvrd!")
-	})
 }
 
 // func logging(logger *log.Logger) func(http.Handler) http.Handler {
