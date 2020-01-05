@@ -30,10 +30,16 @@ func BuildDB() bool{
 		return false;
 	}
 	
-	_,err2 := db.Query("CREATE DATABASE testiclebaza")
+	test, _ := db.Query("SELECT 1")
 
-	if err2 !=nil {
-		log.Fatal(err2)
+	if test != nil {
+		return true
+	}
+
+	_,err3 := db.Query("CREATE DATABASE testiclebaza") 
+
+	if err3 !=nil {
+		log.Fatal(err3)
 		return false;
 	}
 
