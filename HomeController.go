@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	_ "github.com/lib/pq"
+	"database/sql"
 )
 
 var (
@@ -17,16 +19,38 @@ const (
 	requestIDKey key = 0
 )
 
+
+func BuildDB() bool{
+	connStr := "user=gotest password=gotest dbname=postgres"
+	
+	db, err := sql.Open("postgres", connStr)
+
+	if err !=nil {
+		log.Fatal(err)
+		return false;
+	}
+	
+	_,err2 := db.Query("CREATE DATABASE testiclebaza")
+
+	if err2 !=nil {
+		log.Fatal(err2)
+		return false;
+	}
+
+	return true
+}
+
 func main() {
 	flag.StringVar(&listenAddr, "listen-addr", ":4001", "server listen address")
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "https", log.LstdFlags)
-	http.Handle("/", http.FileServer(http.Dir("./ClientApp/dist/ClientApp")))
 
-	err := http.ListenAndServeTLS(listenAddr, "cert.pem", "key.unencrypted.pem", nil)
-
-	logger.Println(err)
+	if BuildDB() {
+		http.Handle("/", http.FileServer(http.Dir("./ClientApp/dist/ClientApp/")))
+		err := http.ListenAndServeTLS(listenAddr, "cert.pem", "key.unencrypted.pem", nil)
+		logger.Println(err)
+	}
 }
 
 // func logging(logger *log.Logger) func(http.Handler) http.Handler {
