@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	_ "github.com/lib/pq"
-	"database/sql"
 )
 
 var (
@@ -18,33 +16,6 @@ type key int
 const (
 	requestIDKey key = 0
 )
-
-
-func BuildDB() bool{
-	connStr := "user=gotest password=gotest dbname=postgres"
-	
-	db, err := sql.Open("postgres", connStr)
-
-	if err !=nil {
-		log.Fatal(err)
-		return false;
-	}
-	
-	test, _ := db.Query("SELECT 1")
-
-	if test != nil {
-		return true
-	}
-
-	_,err3 := db.Query("CREATE DATABASE testiclebaza") 
-
-	if err3 !=nil {
-		log.Fatal(err3)
-		return false;
-	}
-
-	return true
-}
 
 func main() {
 	flag.StringVar(&listenAddr, "listen-addr", ":4001", "server listen address")
